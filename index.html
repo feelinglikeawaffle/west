@@ -1,1 +1,509 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Far Far West Ultimate Prototype</title>
 
+<style>
+body{
+margin:0;
+overflow:hidden;
+background:black;
+font-family:Arial;
+}
+
+canvas{
+display:block;
+}
+
+#ui{
+position:absolute;
+top:10px;
+left:10px;
+background:rgba(0,0,0,.75);
+color:white;
+padding:10px;
+border-radius:8px;
+font-size:14px;
+}
+
+#help{
+position:absolute;
+right:10px;
+top:10px;
+background:rgba(0,0,0,.75);
+color:white;
+padding:10px;
+width:250px;
+font-size:12px;
+}
+</style>
+</head>
+<body>
+
+<div id="ui"></div>
+
+<div id="help">
+WASD Move<br>
+E Interact<br>
+H Horse<br>
+F Shoot<br>
+I Inventory<br>
+K Save<br>
+L Load
+</div>
+
+<canvas id="game"></canvas>
+
+<script>
+
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+function resize(){
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+}
+resize();
+addEventListener("resize",resize);
+
+const keys={};
+
+addEventListener("keydown",e=>keys[e.key.toLowerCase()]=true);
+addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
+
+const WORLD=8000;
+
+const player={
+x:WORLD/2,
+y:WORLD/2,
+speed:3,
+horse:false,
+hp:100,
+maxHp:100,
+money:100,
+xp:0,
+level:1,
+ammo:50,
+inventory:["Revolver"]
+};
+
+const towns=[];
+const enemies=[];
+const npcs=[];
+const horses=[];
+const bullets=[];
+const quests=[];
+
+for(let i=0;i<10;i++){
+towns.push({
+x:Math.random()*WORLD,
+y:Math.random()*WORLD,
+name:"Town "+(i+1)
+});
+}
+
+for(let i=0;i<60;i++){
+
+enemies.push({
+x:Math.random()*WORLD,
+y:Math.random()*WORLD,
+hp:30
+});
+
+}
+
+for(let i=0;i<30;i++){
+
+npcs.push({
+x:Math.random()*WORLD,
+y:Math.random()*WORLD,
+questGiven:false
+});
+
+}
+
+for(let i=0;i<25;i++){
+
+horses.push({
+x:Math.random()*WORLD,
+y:Math.random()*WORLD
+});
+
+}
+
+let dayTime=0;
+
+function shoot(){
+
+if(player.ammo<=0) return;
+
+player.ammo--;
+
+bullets.push({
+x:player.x,
+y:player.y,
+vx:12,
+vy:0
+});
+
+}
+
+addEventListener("keydown",e=>{
+
+if(e.key==="f") shoot();
+
+if(e.key==="h"){
+
+for(let horse of horses){
+
+let d=Math.hypot(
+horse.x-player.x,
+horse.y-player.y
+);
+
+if(d<50){
+
+player.horse=!player.horse;
+}
+
+}
+}
+
+if(e.key==="e"){
+
+for(let npc of npcs){
+
+let d=Math.hypot(
+npc.x-player.x,
+npc.y-player.y
+);
+
+if(d<60){
+
+if(!npc.questGiven){
+
+npc.questGiven=true;
+
+quests.push({
+text:"Kill 5 bandits",
+goal:5,
+progress:0,
+reward:100,
+finished:false
+});
+
+}
+
+}
+}
+
+for(let town of towns){
+
+let d=Math.hypot(
+town.x-player.x,
+town.y-player.y
+);
+
+if(d<100){
+
+player.ammo+=20;
+player.money-=10;
+
+}
+
+}
+}
+
+if(e.key==="i"){
+
+alert(
+player.inventory.join("\n")
+);
+
+}
+
+if(e.key==="k"){
+
+localStorage.ffw=
+JSON.stringify(player);
+
+}
+
+if(e.key==="l"){
+
+let save=
+JSON.parse(localStorage.ffw||"null");
+
+if(save)
+Object.assign(player,save);
+
+}
+
+});
+
+function update(){
+
+let speed=
+player.horse ? 6 : 3;
+
+if(keys["w"]) player.y-=speed;
+if(keys["s"]) player.y+=speed;
+if(keys["a"]) player.x-=speed;
+if(keys["d"]) player.x+=speed;
+
+player.x=Math.max(0,
+Math.min(WORLD,player.x));
+
+player.y=Math.max(0,
+Math.min(WORLD,player.y));
+
+for(let bullet of bullets){
+
+bullet.x+=bullet.vx;
+bullet.y+=bullet.vy;
+
+}
+
+for(let enemy of enemies){
+
+let dx=player.x-enemy.x;
+let dy=player.y-enemy.y;
+
+let d=Math.hypot(dx,dy);
+
+if(d<400){
+
+enemy.x+=dx/d;
+enemy.y+=dy/d;
+
+}
+
+if(d<25){
+
+player.hp-=0.1;
+
+}
+
+for(let bullet of bullets){
+
+let bd=Math.hypot(
+bullet.x-enemy.x,
+bullet.y-enemy.y
+);
+
+if(bd<20){
+
+enemy.hp-=15;
+
+}
+
+}
+
+}
+
+for(let i=enemies.length-1;i>=0;i--){
+
+if(enemies[i].hp<=0){
+
+enemies.splice(i,1);
+
+player.money+=25;
+player.xp+=20;
+
+for(let q of quests){
+
+if(!q.finished){
+
+q.progress++;
+
+if(q.progress>=q.goal){
+
+q.finished=true;
+player.money+=q.reward;
+
+}
+
+}
+
+}
+
+}
+
+}
+
+if(player.xp>=player.level*100){
+
+player.level++;
+player.maxHp+=10;
+player.hp=player.maxHp;
+
+}
+
+dayTime+=0.001;
+}
+
+function draw(){
+
+let camX=
+player.x-canvas.width/2;
+
+let camY=
+player.y-canvas.height/2;
+
+let sky=
+Math.sin(dayTime);
+
+if(sky>0){
+
+ctx.fillStyle=
+`rgb(${80+sky*120},
+${120+sky*80},
+255)`;
+
+}else{
+
+ctx.fillStyle=
+`rgb(15,15,40)`;
+
+}
+
+ctx.fillRect(0,0,
+canvas.width,
+canvas.height);
+
+for(let x=0;x<WORLD;x+=100){
+
+for(let y=0;y<WORLD;y+=100){
+
+ctx.fillStyle=
+((x+y)/100)%2
+?"#c4a56a"
+:"#b28f55";
+
+ctx.fillRect(
+x-camX,
+y-camY,
+100,
+100
+);
+
+}
+
+}
+
+for(let town of towns){
+
+ctx.fillStyle="brown";
+
+ctx.fillRect(
+town.x-30-camX,
+town.y-30-camY,
+60,
+60
+);
+
+ctx.fillStyle="white";
+ctx.fillText(
+town.name,
+town.x-35-camX,
+town.y-35-camY
+);
+}
+
+for(let npc of npcs){
+
+ctx.fillStyle="lime";
+
+ctx.fillRect(
+npc.x-10-camX,
+npc.y-10-camY,
+20,
+20
+);
+
+}
+
+for(let horse of horses){
+
+ctx.fillStyle="#5a3116";
+
+ctx.fillRect(
+horse.x-15-camX,
+horse.y-10-camY,
+30,
+20
+);
+
+}
+
+for(let enemy of enemies){
+
+ctx.fillStyle="red";
+
+ctx.fillRect(
+enemy.x-12-camX,
+enemy.y-12-camY,
+24,
+24
+);
+
+}
+
+for(let bullet of bullets){
+
+ctx.fillStyle="yellow";
+
+ctx.fillRect(
+bullet.x-camX,
+bullet.y-camY,
+8,
+3
+);
+
+}
+
+ctx.fillStyle=
+player.horse
+? "#00ffff"
+: "#0066ff";
+
+ctx.fillRect(
+player.x-12-camX,
+player.y-12-camY,
+24,
+24
+);
+
+document.getElementById("ui").innerHTML=
+`
+HP: ${Math.floor(player.hp)}/${player.maxHp}<br>
+Level: ${player.level}<br>
+XP: ${player.xp}<br>
+Money: $${player.money}<br>
+Ammo: ${player.ammo}<br>
+Horse: ${player.horse?"Yes":"No"}<br>
+Enemies: ${enemies.length}<br>
+Quest: ${
+quests.length
+? quests[0].text+" "+quests[0].progress+"/"+quests[0].goal
+: "None"
+}
+`;
+
+}
+
+function loop(){
+
+update();
+draw();
+
+requestAnimationFrame(loop);
+
+}
+
+loop();
+
+</script>
+</body>
+</html>
