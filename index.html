@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Far Far West - Boss Rush & Campaign</title>
+    <title>Far Far West - Fixed Boss Rush Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Rye&family=Press+Start+2P&display=swap');
@@ -89,9 +89,9 @@
         <!-- Main Game Canvas -->
         <canvas id="gameCanvas"></canvas>
 
-        <!-- Boss Warning Text Overlay -->
+        <!-- Boss Warning Overlay -->
         <div id="bossWarningOverlay" class="hidden absolute inset-0 pointer-events-none flex items-center justify-center z-20">
-            <h1 class="boss-warning font-western text-4xl md:text-6xl text-red-600 tracking-widest drop-shadow-[0_5px_5px_rgba(0,0,0,1)]">
+            <h1 class="boss-warning font-western text-3xl md:text-5xl text-red-600 tracking-widest drop-shadow-[0_5px_5px_rgba(0,0,0,1)] text-center px-4">
                 ⚠️ WARNING: OUTLAW BOSS APPROACHING ⚠️
             </h1>
         </div>
@@ -119,18 +119,18 @@
             </div>
         </div>
 
-        <!-- Boss Selection Menu (Boss Rush) -->
+        <!-- Boss Selection Menu -->
         <div id="modalBossSelect" class="hidden absolute inset-0 flex items-center justify-center bg-black/90 z-30">
             <div class="wood-panel p-6 md:p-8 rounded-lg max-w-3xl w-11/12 text-center border-amber-600">
                 <h2 class="font-western text-3xl text-amber-400 mb-2">SELECT A BOSS DUEL</h2>
-                <p class="text-xs text-amber-200/80 mb-6">SKIP THE MINIONS - GO STRAIGHT TO THE DUEL</p>
+                <p class="text-xs text-amber-200/80 mb-6">SKIP MINIONS - GO STRAIGHT TO THE DUEL</p>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div class="bg-black/60 p-4 border border-amber-700/60 rounded flex flex-col justify-between">
                         <div>
                             <h3 class="font-western text-red-500 text-lg mb-1">EL DESPERADO</h3>
                             <p class="text-[10px] text-amber-300 mb-2">IRON MASK DURANGO</p>
-                            <p class="text-[10px] text-amber-100/70 leading-relaxed mb-4">Gatling gun sprays, fiery dynamite charges, and dual shotguns.</p>
+                            <p class="text-[10px] text-amber-100/70 leading-relaxed mb-4">Gatling gun sprays, fiery charges & shotgun blasts.</p>
                         </div>
                         <button id="btnSelectBoss1" class="btn-western w-full py-2 text-xs font-bold rounded">DUEL BOSS 1</button>
                     </div>
@@ -139,7 +139,7 @@
                         <div>
                             <h3 class="font-western text-purple-400 text-lg mb-1">SHADOW BANDIT</h3>
                             <p class="text-[10px] text-amber-300 mb-2">SILAS VANCE</p>
-                            <p class="text-[10px] text-amber-100/70 leading-relaxed mb-4">Stealth smoke teleportation, decoys, ricochets & sky mortars.</p>
+                            <p class="text-[10px] text-amber-100/70 leading-relaxed mb-4">Stealth smoke teleportation, decoys & sky mortars.</p>
                         </div>
                         <button id="btnSelectBoss2" class="btn-western w-full py-2 text-xs font-bold rounded">DUEL BOSS 2</button>
                     </div>
@@ -148,7 +148,7 @@
                         <div>
                             <h3 class="font-western text-amber-500 text-lg mb-1">GENERAL IRONCLAD</h3>
                             <p class="text-[10px] text-amber-300 mb-2">EL GOLIATH</p>
-                            <p class="text-[10px] text-amber-100/70 leading-relaxed mb-4">Armored locomotive fortress, flamethrowers & death beam.</p>
+                            <p class="text-[10px] text-amber-100/70 leading-relaxed mb-4">Armored fortress, flamethrowers & laser death beam.</p>
                         </div>
                         <button id="btnSelectBoss3" class="btn-western w-full py-2 text-xs font-bold rounded">DUEL BOSS 3</button>
                     </div>
@@ -170,11 +170,10 @@
                     <div><span class="text-amber-400">SPACE / W:</span> Jump</div>
                     <div><span class="text-amber-400">MOUSE:</span> Aim Crosshair</div>
                     <div><span class="text-amber-400">LEFT CLICK:</span> Fire Weapon</div>
-                    <div><span class="text-amber-400">RIGHT CLICK / SHIFT:</span> Dodge Roll (Invulnerable)</div>
+                    <div><span class="text-amber-400">RIGHT CLICK / SHIFT:</span> Dodge Roll</div>
                     <div><span class="text-amber-400">R:</span> Manual Reload</div>
-                    <div><span class="text-amber-400">E / WHEEL / 1-4:</span> Swap Weapons</div>
+                    <div><span class="text-amber-400">E / WHEEL / 1-3:</span> Swap Weapons</div>
                     <div><span class="text-amber-400">G or F:</span> Throw Dynamite Stick</div>
-                    <div><span class="text-amber-400">SPACE (hold):</span> DeadEye Bullet Time</div>
                     <div><span class="text-amber-400">P / ESC:</span> Pause Game</div>
                 </div>
                 <button id="btnCloseControls" class="btn-western w-full py-3 text-sm font-bold rounded">BACK TO MENU</button>
@@ -259,7 +258,7 @@
                 if (!this.enabled || !this.ctx) return;
                 const now = this.ctx.currentTime;
                 
-                const bufferSize = this.ctx.sampleRate * 0.22;
+                const bufferSize = this.ctx.sampleRate * 0.2;
                 const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
                 const data = buffer.getChannelData(0);
                 for (let i = 0; i < bufferSize; i++) {
@@ -290,11 +289,11 @@
                 const gain = this.ctx.createGain();
 
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(1500 + Math.random() * 700, now);
-                osc.frequency.exponentialRampToValueAtTime(300, now + 0.22);
+                osc.frequency.setValueAtTime(1600 + Math.random() * 600, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.2);
 
                 gain.gain.setValueAtTime(0.2, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
 
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
@@ -304,7 +303,7 @@
             playExplosion() {
                 if (!this.enabled || !this.ctx) return;
                 const now = this.ctx.currentTime;
-                const bufferSize = this.ctx.sampleRate * 0.5;
+                const bufferSize = this.ctx.sampleRate * 0.45;
                 const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
                 const data = buffer.getChannelData(0);
                 for (let i = 0; i < bufferSize; i++) {
@@ -317,11 +316,11 @@
                 const filter = this.ctx.createBiquadFilter();
                 filter.type = 'lowpass';
                 filter.frequency.setValueAtTime(450, now);
-                filter.frequency.linearRampToValueAtTime(40, now + 0.45);
+                filter.frequency.linearRampToValueAtTime(40, now + 0.4);
 
                 const gain = this.ctx.createGain();
                 gain.gain.setValueAtTime(0.8, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
 
                 noise.connect(filter);
                 filter.connect(gain);
@@ -337,7 +336,7 @@
 
                 osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(110, now);
-                osc.frequency.linearRampToValueAtTime(55, now + 0.6);
+                osc.frequency.linearRampToValueAtTime(50, now + 0.6);
 
                 gain.gain.setValueAtTime(0.5, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
@@ -354,11 +353,11 @@
                 const gain = this.ctx.createGain();
 
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(800, now);
-                osc.frequency.exponentialRampToValueAtTime(100, now + 0.35);
+                osc.frequency.setValueAtTime(900, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
 
                 gain.gain.setValueAtTime(0.3, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
 
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
@@ -472,6 +471,7 @@
                 this.selectedBossId = 1;
                 this.screenShake = 0;
                 this.timeScale = 1.0;
+                this.stageCleared = false;
 
                 // Stats
                 this.score = 0;
@@ -607,6 +607,7 @@
                 this.shotsHit = 0;
                 this.headshots = 0;
                 this.kills = 0;
+                this.stageCleared = false;
 
                 this.resetUpgrades();
 
@@ -643,6 +644,7 @@
                 this.items = [];
                 this.dynamites = [];
                 this.floatingTexts = [];
+                this.stageCleared = false;
 
                 this.player = new Player(this, 150, this.groundY - 60);
                 this.camera.x = 0;
@@ -676,7 +678,7 @@
                 setTimeout(() => {
                     warningEl.classList.add('hidden');
                     if (callback) callback();
-                }, 2200);
+                }, 1800);
             }
 
             spawnBoss(bossId) {
@@ -885,7 +887,7 @@
             update() {
                 this.timeScale = (this.player && this.player.isDeadeye) ? 0.35 : 1.0;
 
-                // Smooth Camera tracking
+                // Camera tracking
                 const targetCamX = this.player.x - this.canvas.width / 2 + this.player.width / 2;
                 this.camera.x += (targetCamX - this.camera.x) * 0.1;
                 this.camera.x = Math.max(0, Math.min(this.worldWidth - this.canvas.width, this.camera.x));
@@ -898,15 +900,27 @@
                 // Update Player
                 if (this.player) this.player.update();
 
-                // Check Wave / Boss Clearing
-                if (this.enemies.length === 0 && !this.boss) {
-                    this.openShop();
+                // Safe Stage Clearing Validation
+                if (!this.stageCleared) {
+                    if (this.gameMode === 'story' || this.gameMode === 'endless') {
+                        if (this.enemies.length === 0 && (!this.boss || (this.boss && this.boss.hasSpawned && this.boss.dead))) {
+                            this.stageCleared = true;
+                            this.openShop();
+                        }
+                    } else if (this.gameMode === 'boss_rush' || this.gameMode === 'boss_single') {
+                        if (this.boss && this.boss.hasSpawned && this.boss.dead) {
+                            this.stageCleared = true;
+                            this.openShop();
+                        }
+                    }
                 }
 
-                // Update Entities
+                // Update Boss & Minions
                 if (this.boss) {
                     this.boss.update();
-                    if (this.boss.dead) this.boss = null;
+                    if (this.boss.dead) {
+                        this.boss = null;
+                    }
                 }
 
                 this.updateEntities(this.bullets);
@@ -966,17 +980,17 @@
                 this.ctx.save();
                 this.ctx.translate(-this.camera.x, 0);
 
-                // 2. Terrain & Environment structures
+                // 2. Terrain & Environment
                 this.drawEnvironment();
 
                 // 3. Interactive Entities
                 this.items.forEach(item => item.draw(this.ctx));
                 this.dynamites.forEach(d => d.draw(this.ctx));
                 this.enemies.forEach(e => e.draw(this.ctx));
-                if (this.boss) this.boss.draw(this.ctx);
+                if (this.boss && this.boss.hasSpawned) this.boss.draw(this.ctx);
                 if (this.player) this.player.draw(this.ctx);
 
-                // 4. Bullets & Lasers
+                // 4. Bullets
                 this.bullets.forEach(b => b.draw(this.ctx));
                 this.enemyBullets.forEach(b => b.draw(this.ctx));
 
@@ -1140,8 +1154,8 @@
                 this.ctx.fillText(`STAGE: ${this.currentLevel}-${this.wave}`, this.canvas.width - 225, 64);
                 this.ctx.fillText(`DYNAMITE: ${this.player.dynamiteCount}`, this.canvas.width - 225, 86);
 
-                // Massive Top Center Boss Bar (If Boss Active)
-                if (this.boss) {
+                // Top Center Boss Bar
+                if (this.boss && this.boss.hasSpawned) {
                     const barWidth = Math.min(600, this.canvas.width - 100);
                     const barX = (this.canvas.width - barWidth) / 2;
 
@@ -1418,8 +1432,8 @@
                 this.width = 32;
                 this.height = 58;
 
-                this.hp = type.hp;
                 this.maxHp = type.hp;
+                this.hp = this.maxHp;
                 this.speed = type.speed;
                 this.shootCD = Math.random() * 1000;
                 this.dead = false;
@@ -1517,9 +1531,10 @@
                 this.height = 76;
 
                 this.maxHp = 950;
-                this.hp = this.maxHp;
+                this.hp = 950;
                 this.phase = 1;
                 this.dead = false;
+                this.hasSpawned = true;
 
                 this.attackTimer = 0;
                 this.isCharging = false;
@@ -1528,6 +1543,8 @@
             }
 
             update() {
+                if (this.dead) return;
+
                 const player = this.game.player;
                 if (!player) return;
 
@@ -1540,7 +1557,7 @@
                     this.game.addFloatingText(this.x, this.y - 50, "PHASE 2: RODEO ENRAGE!", "#ff0000", 22);
                 }
 
-                // Attack State Machine
+                // Charge Logic
                 if (this.isCharging) {
                     this.x += this.chargeVx * this.game.timeScale;
                     this.game.addParticle(this.x, this.y + 60, (Math.random() - 0.5) * 4, -2, '#ff4400', 6, 20);
@@ -1576,7 +1593,7 @@
                 audio.playGunshot('revolver');
                 for (let i = 0; i < 5; i++) {
                     setTimeout(() => {
-                        if (!this.game.player) return;
+                        if (!this.game.player || this.dead) return;
                         const angle = Math.atan2(this.game.player.y - this.y, this.game.player.x - this.x) + (Math.random() - 0.5) * 0.2;
                         this.game.enemyBullets.push(new Bullet(this.game, this.x, this.y + 20, Math.cos(angle) * 14, Math.sin(angle) * 14, 12, false, '#ffaa00'));
                     }, i * 80);
@@ -1605,12 +1622,14 @@
             }
 
             takeDamage(amount, isHeadshot) {
+                if (this.dead) return;
                 if (isHeadshot) amount *= 1.5;
                 this.hp -= amount;
                 this.game.shotsHit++;
-                this.game.addFloatingText(this.x, this.y - 10, `-${amount}`, isHeadshot ? "#ffea00" : "#ffffff", 16);
+                this.game.addFloatingText(this.x, this.y - 10, `-${Math.round(amount)}`, isHeadshot ? "#ffea00" : "#ffffff", 16);
 
                 if (this.hp <= 0 && !this.dead) {
+                    this.hp = 0;
                     this.dead = true;
                     this.game.kills++;
                     this.game.score += 1500;
@@ -1650,9 +1669,10 @@
                 this.height = 68;
 
                 this.maxHp = 1100;
-                this.hp = this.maxHp;
+                this.hp = 1100;
                 this.phase = 1;
                 this.dead = false;
+                this.hasSpawned = true;
 
                 this.attackTimer = 0;
                 this.isStealthed = false;
@@ -1661,6 +1681,8 @@
             }
 
             update() {
+                if (this.dead) return;
+
                 const player = this.game.player;
                 if (!player) return;
 
@@ -1724,12 +1746,13 @@
             }
 
             takeDamage(amount, isHeadshot) {
-                if (this.isStealthed) return;
+                if (this.dead || this.isStealthed) return;
                 this.hp -= amount;
                 this.game.shotsHit++;
-                this.game.addFloatingText(this.x, this.y - 10, `-${amount}`, isHeadshot ? "#ffea00" : "#ffffff", 16);
+                this.game.addFloatingText(this.x, this.y - 10, `-${Math.round(amount)}`, isHeadshot ? "#ffea00" : "#ffffff", 16);
 
                 if (this.hp <= 0 && !this.dead) {
+                    this.hp = 0;
                     this.dead = true;
                     this.game.kills++;
                     this.game.score += 2000;
@@ -1754,7 +1777,7 @@
         }
 
         /* ==========================================================================
-           BOSS 3: "GENERAL IRONCLAD" EL GOLIATH (ARMORED BOSS)
+           BOSS 3: "GENERAL IRONCLAD" EL GOLIATH
            ========================================================================== */
         class BossGoliath {
             constructor(game, x, y) {
@@ -1766,15 +1789,18 @@
                 this.height = 110;
 
                 this.maxHp = 1600;
-                this.hp = this.maxHp;
+                this.hp = 1600;
                 this.phase = 1;
                 this.dead = false;
+                this.hasSpawned = true;
 
                 this.attackTimer = 0;
                 this.facingRight = false;
             }
 
             update() {
+                if (this.dead) return;
+
                 const player = this.game.player;
                 if (!player) return;
 
@@ -1806,6 +1832,7 @@
             flamethrowerSweep() {
                 for (let i = 0; i < 12; i++) {
                     setTimeout(() => {
+                        if (this.dead) return;
                         const dir = this.facingRight ? 1 : -1;
                         this.game.enemyBullets.push(new Bullet(this.game, this.x + dir * 40, this.game.groundY - 15, dir * (8 + Math.random() * 4), 0, 10, false, '#ff6600'));
                     }, i * 60);
@@ -1826,12 +1853,14 @@
             }
 
             takeDamage(amount, isHeadshot) {
+                if (this.dead) return;
                 amount *= 0.7; // Armor Reduction
                 this.hp -= amount;
                 this.game.shotsHit++;
                 this.game.addFloatingText(this.x, this.y - 10, `-${Math.round(amount)}`, "#ffffff", 15);
 
                 if (this.hp <= 0 && !this.dead) {
+                    this.hp = 0;
                     this.dead = true;
                     this.game.kills++;
                     this.game.score += 3000;
@@ -1886,7 +1915,7 @@
 
                 if (this.isPlayer) {
                     const targets = [...this.game.enemies];
-                    if (this.game.boss) targets.push(this.game.boss);
+                    if (this.game.boss && this.game.boss.hasSpawned && !this.game.boss.dead) targets.push(this.game.boss);
 
                     targets.forEach(t => {
                         if (this.x > t.x && this.x < t.x + t.width && this.y > t.y && this.y < t.y + t.height) {
